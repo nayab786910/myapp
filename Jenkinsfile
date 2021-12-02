@@ -1,44 +1,96 @@
 
-node {
-  
-  def image
-  def mvnHome = tool 'Maven3'
-
-  
-     stage ('checkout') {
-        checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '9ffd4ee4-3647-4a7d-a357-5e8746463282', url: 'https://bitbucket.org/ananthkannan/myawesomeangularapprepo/']]])       
-        }
-    
-    
-    stage ('Build') {
-            sh 'mvn -f MyAwesomeApp/pom.xml clean install'            
-        }
-        
-    stage ('archive') {
-            archiveArtifacts '**/*.jar'
-        }
-        
-    stage ('Docker Build') {
-         // Build and push image with Jenkins' docker-plugin
-        withDockerServer([uri: "tcp://localhost:4243"]) {
-
-            withDockerRegistry([credentialsId: "fa32f95a-2d3e-4c7b-8f34-11bcc0191d70", url: "https://index.docker.io/v1/"]) {
-            image = docker.build("ananthkannan/mywebapp", "MyAwesomeApp")
-            image.push()
-            
-            }
-        }
+pipeline {
+  agent{ label 'demo'}
+    environment {
+        registry = "519852036875.dkr.ecr.us-east-1.amazonaws.com/my-first-ecr"
     }
-    
-       stage('docker stop container') {
-            sh 'docker ps -f name=myContainer -q | xargs --no-run-if-empty docker container stop'
-            sh 'docker container ls -a -fname=myContainer -q | xargs -r docker container rm'
-
+  stages{
+   stage('clone repo'){
+     steps{
+        echo 'going to checkout the git'
+	git branch: 'main', url: 'https://github.com/nayab786910/myapp.git'
+	echo 'completed checkout the git'
        }
-
-    stage ('Docker run') {
-
-        image.run("-p 8085:8085 --rm --name myContainer")
-
+   }
+   stage('build'){
+       steps{
+          echo 'build '
+          sh "mvn clean package"
+       }
+   }
+   stage ('code coverage') {
+     steps {
+      echo 'Running code coverage'
+      sh "mvn org.jacoco:jacoco-maven-plugin:0.5.5.201112152213:prepare-agent"
+     }
+   }
+   stage ('sonar analysis') {
+    steps {
+     withSonarQubeEnv('defaultsonar'){
+     sh 'mvn sonar:sonar'
+     } 
     }
+  }
+  stage("Quality Gate"){ 
+    steps{
+	 script {
+	   timeout(time: 10, unit: 'MINUTES') { 
+            def qg = waitForQualityGate() 
+            if (qg.status != 'OK') {
+              error "Pipeline aborted due to quality gate failure: ${qg.status}"
+            }
+           }
+	}
+  }
+  }
+  stage('Stage Artifacts') 
+  {          
+   steps {          
+    script { 
+	    /* Define the Artifactory Server details */
+        def server = Artifactory.server 'Jfrog'
+        def uploadSpec = """{
+            "files": [{
+            "pattern": "target/myspringbootapp.jar.original", 
+            "target": "Demo"                   
+            }]
+        }"""
+        
+        /* Upload the war to  Artifactory repo */
+        server.upload(uploadSpec)
+    }
+   }
+  }
+  stage('Build Image') 
+  {
+    agent { label 'demo' }
+    steps{
+      script {
+          myImage = docker.build registry
+      }
+    }
+  }
+  stage('Pushing to ECR') {
+      agent { label 'demo'}
+     steps{  
+         script {
+                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 519852036875.dkr.ecr.us-east-1.amazonaws.com'
+                sh 'docker push 519852036875.dkr.ecr.us-east-1.amazonaws.com/my-first-ecr:latest'
+         }
+      }
+  }
+  stage ('K8S Deploy') {
+      
+      steps { 
+                
+       
+                kubernetesDeploy(
+                    configs: 'springboot-lb.yaml',
+                    kubeconfigId: 'K8s',
+                    enableConfigSubstitution: true
+                    )               
+        }
+  }
+  
+ }
 }
