@@ -6,15 +6,15 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: angular-app
+      app: spring-app
   template:
     metadata:
       labels:
-        app: angular-app
+        app: spring-app
     spec:
       containers:
-      - name: my-angular-app
-        image: akdevopscoaching/mywebapp:latest
+      - name: my-spring-app
+        image: 519852036875.dkr.ecr.us-east-1.amazonaws.com/my-first-ecr:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8085
@@ -23,12 +23,29 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: angular-app-svc
+  name: spring-app-svc
 spec:
   selector:
-    app: angular-app
+    app: spring-app
   ports:
     - protocol: TCP
       port: 8085
       targetPort: 8085
   type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: sample-nginx
+  name: spring-app
+  namespace: default
+spec:
+  rules:
+    - host: www.pasivadipranam.tk
+      http:
+        paths:
+          - backend:
+              serviceName: spring-app-svc
+              servicePort: 8085
+            path: /
