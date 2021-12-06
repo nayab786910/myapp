@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: my-spring-app
-        image: akdevopscoaching/mywebapp:latest
+        image: 519852036875.dkr.ecr.us-east-1.amazonaws.com/my-first-ecr:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8085
@@ -31,21 +31,5 @@ spec:
     - protocol: TCP
       port: 8085
       targetPort: 8085
-  type: ClusterIP
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: sample-nginx
-  name: spring-app
-  namespace: default
-spec:
-  rules:
-    - host: www.pasivadipranam.tk
-      http:
-        paths:
-          - backend:
-              serviceName: spring-app-svc
-              servicePort: 8085
-            path: /
+  type: LoadBalancer
+
