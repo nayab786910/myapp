@@ -31,5 +31,18 @@ spec:
       port: 80
       targetPort: 8085
   type: ClusterIP
+---
+apiVersion: extensions/v1beta1 # for versions before 1.14 use extensions/v1beta1
+ kind: Ingress
+ metadata:
+   name: example-ingress
+ spec:
+   rules:
+   - host: www.pasivadipranam.tk
+     http:
+       paths:
+        - backend:
+           serviceName: angular-app-svc
+           servicePort: 8085
 
 
