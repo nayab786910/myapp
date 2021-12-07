@@ -41,7 +41,7 @@ metadata:
   namespace: default
 spec:
   rules:
-    - host: www.pasivadipranam.tk
+    - host: pasivadipranam.tk
       http:
         paths:
           - backend:
