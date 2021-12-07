@@ -31,20 +31,4 @@ spec:
       port: 80
       targetPort: 8085
   type: ClusterIP
----
-apiVersion: extensions/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: "public"
-  name: angular-app
-  namespace: default
-spec:
-  rules:
-    - host: www.pasivadipranam.tk
-      http:
-        paths:
-          - backend:
-              serviceName: spring-app-service
-              servicePort: 8085
-            path: /
+
