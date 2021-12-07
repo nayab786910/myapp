@@ -37,7 +37,9 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: "public"
-  spec:
+  name: angular-app
+  namespace: default
+spec:
   rules:
     - host: www.pasivadipranam.tk
       http:
