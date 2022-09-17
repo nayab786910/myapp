@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-ak-deployment
+  name: my-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: angular-app
+      app: springboot-app
   template:
     metadata:
       labels:
-        app: angular-app
+        app: springboot-app
     spec:
       containers:
-      - name: my-angular-app
-        image: akdevopscoaching/springbootapp:latest
+      - name: my-springboot-app
+        image: nayab786/github-actions:main-34266b3
         imagePullPolicy: Always
         ports:
         - containerPort: 8085
@@ -26,9 +26,9 @@ metadata:
   name: angular-app-svc
 spec:
   selector:
-    app: angular-app
+    app: springboot-app
   ports:
     - protocol: TCP
       port: 8085
       targetPort: 8085
-  type: ClusterIp
+  type: LoadBalancer
