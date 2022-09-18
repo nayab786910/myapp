@@ -15,15 +15,23 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 11
-      if: "contains(github.event.head_commit.message, 'BUILD_CONTAINER_IMAGE')"
       uses: actions/setup-java@v3
       with:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: |
+       mvn -Bpackage --file pom.xml
+       mkdir artifacts && cp target/*.jar artifacts
+       cd artifacts && ls
+    - name: save artifacts
+      uses: actions/uploads-artifacts@v2
+      with:
+        name: github-actions-artifact
+        path: artifacts
     - name: Build and Push Docker image
+      if: "contains(github.event.head_commit.message, 'BUILD_CONTAINER_IMAGE')"
       uses: mr-smithers-excellent/docker-build-push@v4
       with:
         image: nayab786/github-actions
