@@ -1,4 +1,4 @@
-
+# sample ci for springboot application
 name: Java CI with Maven
 
 on:
