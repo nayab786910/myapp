@@ -17,7 +17,7 @@ spec:
         image: nayab786/github-actions:main-34266b3
         imagePullPolicy: Always
         ports:
-        - containerPort: 8085
+        - containerPort: 9090
 # service type loadbalancer
 ---
 apiVersion: v1
@@ -29,6 +29,6 @@ spec:
     app: springboot-app
   ports:
     - protocol: TCP
-      port: 8085
-      targetPort: 8085
+      port: 9090
+      targetPort: 9090
   type: LoadBalancer
