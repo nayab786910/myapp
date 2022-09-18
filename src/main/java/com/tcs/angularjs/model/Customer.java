@@ -18,7 +18,7 @@ public class Customer {
         this.firstname = firstname;
     }
     
-    // lastname
+
     public String getLastname() {
         return lastname;
     }
