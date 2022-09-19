@@ -2,11 +2,11 @@ Steps i have done in the github actions:
 ==========================================
 1. I have taken a simple springboot LOGIN page application
 2. Which is simple java and maven project
-3. In github actions i have build the project and stored the artifact in target
+3. In github actions i build the project and stored the artifact in target
 4. After building the Jar file 
 5. Written a Dockerfile for creating docker image with that Dockerfile created image are stored in my Dockerhub repo
-6. The Dockerhub credentails i have given as secret 
-7. Once the docker image is build it will store the in my repo.
+6. The Dockerhub credentails i mentioned as secret 
+7. Once the docker image is build it will stored in my dockerhub repo.
 8. After that i written a Deployment in kubernetes cluster with service
 Deployment:
 ============
